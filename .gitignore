@@ -1,0 +1,7 @@
+*.class
+/bin
+*.war
+*.ear
+.classpath
+*.nxd
+*.nxj
