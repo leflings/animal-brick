@@ -3,6 +3,7 @@ package dk.dtu.cdio.ANIMAL.brick;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.Writer;
 
 import lejos.nxt.LCD;
 import lejos.nxt.Sound;
@@ -28,7 +29,7 @@ public class Communicator {
 		LCD.clear();
 		System.out.println("Speed: " + theUnit.pilot.getTravelSpeed() + " (" + theUnit.pilot.getMaxTravelSpeed() +")");
 		System.out.println("ROTA: " + theUnit.pilot.getRotateSpeed() + " (" + theUnit.pilot.getMaxRotateSpeed() +")");
-		LCD.drawString("waiting", 0, 5);
+//		LCD.drawString("waiting", 0, 5);
 		BTConnection btc = Bluetooth.waitForConnection(); // this method is very
 															// patient.
 		LCD.clear();
@@ -44,6 +45,11 @@ public class Communicator {
 	
 	public void sendPop() throws IOException {
 		dataOut.writeInt(NavCommand.POP.ordinal());
+		dataOut.flush();
+	}
+	
+	public void sendLatencyTest() throws IOException {
+		dataOut.writeInt(NavCommand.LATENCY_TEST.ordinal());
 		dataOut.flush();
 	}
 
@@ -65,9 +71,17 @@ public class Communicator {
 						continue;
 					}
 					
-					debugCommand(command);
+//					debugCommand(command);
 
 					switch (command.getNavCommand()) {
+					case LATENCY_TEST:
+						try {
+							sendLatencyTest();
+						} catch (IOException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+						break;
 					case STOP:
 						theUnit.pilot.quickStop();
 						break;

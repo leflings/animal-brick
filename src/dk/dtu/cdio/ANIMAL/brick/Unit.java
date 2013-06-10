@@ -103,6 +103,9 @@ public class Unit {
 		case SET_ROTATESPEED:
 			pilot.setRotateSpeed(command.getA1());			
 			break;
+		case SET_ACCELERATION:
+			pilot.setAcceleration((int) command.getA1());
+			break;
 		default:
 			break;
 				
