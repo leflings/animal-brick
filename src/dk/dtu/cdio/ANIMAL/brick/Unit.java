@@ -64,6 +64,7 @@ public class Unit {
 				try {
 					if(!queue.empty()) {
 						command = (Command) queue.pop();
+						com.sendPop();
 //						System.out.println("["+ counter++ + "]" + NavCommand.values()[command.getNavCommand().ordinal()] + ": " + command.getA1());
 //						Communicator.debugCommand(command);
 						execute(command);
@@ -72,6 +73,8 @@ public class Unit {
 				} catch (EmptyQueueException e) {
 					// TODO Auto-generated catch block
 					System.out.println("Empty Queue");
+				} catch (IOException e) {
+					System.out.println("Send POP failed");
 				}
 //				catch (InterruptedException e) {
 //					// TODO Auto-generated catch block

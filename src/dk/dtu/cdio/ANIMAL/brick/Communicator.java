@@ -41,6 +41,11 @@ public class Communicator {
 		Sound.beepSequence();
 		reader.start();
 	}
+	
+	public void sendPop() throws IOException {
+		dataOut.writeInt(NavCommand.POP.ordinal());
+		dataOut.flush();
+	}
 
 	protected Command readData() throws IOException {
 		return new Command(NavCommand.values()[dataIn.readInt()], dataIn.readFloat(), dataIn.readFloat(), dataIn.readFloat(), dataIn.readBoolean());
