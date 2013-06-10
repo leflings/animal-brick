@@ -60,7 +60,7 @@ public class Communicator {
 						continue;
 					}
 					
-//					debugCommand(command);
+					debugCommand(command);
 
 					switch (command.getNavCommand()) {
 					case STOP:

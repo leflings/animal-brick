@@ -5,6 +5,7 @@ import java.util.EmptyQueueException;
 import java.util.Queue;
 
 import lejos.nxt.Button;
+import lejos.nxt.Motor;
 import lejos.robotics.RegulatedMotor;
 import lejos.robotics.navigation.DifferentialPilot;
 import lejos.util.PilotProps;
@@ -30,11 +31,14 @@ public class Unit {
 		PilotProps pp = new PilotProps();
 		pp.loadPersistentValues();
 		if(!Boolean.parseBoolean(pp.getProperty("CDIO_DEF"))) {
+			System.out.println("prop not set");
 			pp.setProperty(PilotProps.KEY_WHEELDIAMETER, "56");
 			pp.setProperty( PilotProps.KEY_TRACKWIDTH, "120");
 			pp.setProperty( PilotProps.KEY_LEFTMOTOR, "B");
 			pp.setProperty( PilotProps.KEY_RIGHTMOTOR, "C");
 			pp.setProperty( PilotProps.KEY_REVERSE, "false");
+			pp.setProperty("CDIO_DEF", "true");
+			pp.storePersistentValues();
 		}
 		float wheelDiameter = Float.parseFloat(pp.getProperty( PilotProps.KEY_WHEELDIAMETER, "56"));
 		float trackWidth = Float.parseFloat(pp.getProperty( PilotProps.KEY_TRACKWIDTH, "120"));
@@ -44,6 +48,8 @@ public class Unit {
 
 		DifferentialPilot pilot = new DifferentialPilot(wheelDiameter,
 				trackWidth, leftMotor, rightMotor, reverse);
+		
+//		DifferentialPilot pilot = new DifferentialPilot(56.0, 120.0, PilotProps.getMotor("B"), PilotProps.getMotor("C"), false);
 
 		Unit unit = new Unit(pilot);
 		unit.go();
@@ -87,10 +93,13 @@ public class Unit {
 			break;
 		case ROTATE:
 			pilot.rotate(command.getA1());
+			break;
 		case SET_TRAVELSPEED:
 			pilot.setTravelSpeed(command.getA1());
+			break;
 		case SET_ROTATESPEED:
 			pilot.setRotateSpeed(command.getA1());			
+			break;
 		default:
 			break;
 				
