@@ -90,7 +90,9 @@ public class Communicator {
 						theUnit.queue.clear();
 						break;
 					default:
-						theUnit.nextCommand = command;
+						theUnit.execute(command);
+						sendConfirm(command);
+//						theUnit.nextCommand = command;
 						break;
 					}
 				Thread.yield();

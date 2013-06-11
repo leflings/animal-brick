@@ -55,13 +55,14 @@ public class Unit {
 	public void go() {
 		com.connect();
 		boolean more = true;
-		while (more) {
-			currentcommand = nextCommand;
-			execute(currentcommand);
-			com.sendConfirm(currentcommand);
-			more = !Button.ESCAPE.isDown();
-			Thread.yield();
-		}
+//		while (more) {
+//			while(nextCommand == null);
+//			currentcommand = nextCommand;
+//			execute(currentcommand);
+//			com.sendConfirm(currentcommand);
+//			more = !Button.ESCAPE.isDown();
+//			Thread.yield();
+//		}
 	}
 	
 	public void execute(Command command) {
