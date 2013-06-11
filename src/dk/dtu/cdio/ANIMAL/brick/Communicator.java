@@ -43,14 +43,14 @@ public class Communicator {
 		reader.start();
 	}
 	
-	public void sendPop() throws IOException {
-		dataOut.writeInt(NavCommand.POP.ordinal());
-		dataOut.flush();
-	}
-	
-	public void sendLatencyTest() throws IOException {
-		dataOut.writeInt(NavCommand.LATENCY_TEST.ordinal());
-		dataOut.flush();
+	public void sendConfirm(Command command) {
+		try {
+			dataOut.writeInt(command.getNavCommand().ordinal());
+			dataOut.flush();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
 	}
 
 	protected Command readData() throws IOException {
@@ -59,6 +59,7 @@ public class Communicator {
 
 	class Reader extends Thread {
 		boolean isRunning = false;
+		int readFailures = 0;
 		private Command command;
 
 		public void run() {
@@ -68,30 +69,28 @@ public class Communicator {
 						command = readData();
 					} catch (IOException e) {
 						System.out.println("Read failure");
+						if(++readFailures > 3) {
+							isRunning = false;
+							break;
+						}
 						continue;
 					}
 					
-//					debugCommand(command);
-
 					switch (command.getNavCommand()) {
 					case LATENCY_TEST:
-						try {
-							sendLatencyTest();
-						} catch (IOException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						}
+						sendConfirm(command);
 						break;
 					case STOP:
-						theUnit.pilot.quickStop();
+						theUnit.pilot.stop();
+						sendConfirm(command);
 						break;
 					case STOP_AND_CLEAR:
-						theUnit.pilot.quickStop();
+						theUnit.pilot.stop();
 					case CLEAR:
 						theUnit.queue.clear();
 						break;
 					default:
-						theUnit.queue.push(command);
+						theUnit.nextCommand = command;
 						break;
 					}
 				Thread.yield();

@@ -12,13 +12,12 @@ import lejos.util.PilotProps;
 
 public class Unit {
 
-	// internal queue
-	// communicator
-	// executor
-
 	protected Queue<Command> queue;
 	protected DifferentialPilot pilot;
 	private Communicator com;
+	
+	Command nextCommand;
+	Command currentcommand;
 
 	public Unit(DifferentialPilot pilot) {
 		this.pilot = pilot;
@@ -48,8 +47,6 @@ public class Unit {
 
 		DifferentialPilot pilot = new DifferentialPilot(wheelDiameter,
 				trackWidth, leftMotor, rightMotor, reverse);
-		
-//		DifferentialPilot pilot = new DifferentialPilot(56.0, 120.0, PilotProps.getMotor("B"), PilotProps.getMotor("C"), false);
 
 		Unit unit = new Unit(pilot);
 		unit.go();
@@ -58,29 +55,10 @@ public class Unit {
 	public void go() {
 		com.connect();
 		boolean more = true;
-		int counter = 0;
-		Command command;
 		while (more) {
-				try {
-					if(!queue.empty()) {
-						command = (Command) queue.pop();
-						com.sendPop();
-//						System.out.println("["+ counter++ + "]" + NavCommand.values()[command.getNavCommand().ordinal()] + ": " + command.getA1());
-//						Communicator.debugCommand(command);
-						execute(command);
-//						queue.wait(0);
-					}
-				} catch (EmptyQueueException e) {
-					// TODO Auto-generated catch block
-					System.out.println("Empty Queue");
-				} catch (IOException e) {
-					System.out.println("Send POP failed");
-				}
-//				catch (InterruptedException e) {
-//					// TODO Auto-generated catch block
-//					e.printStackTrace();
-//				}
-
+			currentcommand = nextCommand;
+			execute(currentcommand);
+			com.sendConfirm(currentcommand);
 			more = !Button.ESCAPE.isDown();
 			Thread.yield();
 		}
@@ -107,8 +85,8 @@ public class Unit {
 			pilot.setAcceleration((int) command.getA1());
 			break;
 		default:
+			System.out.println("Unknown command");
 			break;
-				
 		}
 	}
 
