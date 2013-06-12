@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.util.EmptyQueueException;
 import java.util.Queue;
 
+import dk.dtu.cdio.ANIMAL.brick.Communicator.Reader;
+
 import lejos.nxt.Button;
 import lejos.nxt.Motor;
 import lejos.robotics.RegulatedMotor;
@@ -53,6 +55,7 @@ public class Unit {
 	}
 	
 	public void go() {
+		
 		com.connect();
 		boolean more = true;
 //		while (more) {
@@ -61,7 +64,16 @@ public class Unit {
 //			execute(currentcommand);
 //			com.sendConfirm(currentcommand);
 //			more = !Button.ESCAPE.isDown();
-//			Thread.yield();
+//			if(!com.reader.isRunning) {
+//				com.connect();
+//			}
+//			
+//			try {
+//				Thread.sleep(3000);
+//			} catch (InterruptedException e) {
+//				// TODO Auto-generated catch block
+//				e.printStackTrace();
+//			}
 //		}
 	}
 	
@@ -72,6 +84,9 @@ public class Unit {
 			break;
 		case TRAVEL_ARC:
 			pilot.travelArc(command.getA1(), command.getA2());
+			break;
+		case ARC:
+			pilot.arc(command.getA1(), command.getA2());
 			break;
 		case ROTATE:
 			pilot.rotate(command.getA1());

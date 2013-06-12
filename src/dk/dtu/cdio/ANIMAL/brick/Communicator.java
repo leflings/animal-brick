@@ -15,7 +15,7 @@ public class Communicator {
 	private Unit theUnit;
 	DataInputStream dataIn;
 	DataOutputStream dataOut;
-	private Reader reader;
+	public Reader reader;
 
 	static int counter = 0;
 	
@@ -98,6 +98,7 @@ public class Communicator {
 				Thread.yield();
 
 			}
+		
 		}
 	}
 	
