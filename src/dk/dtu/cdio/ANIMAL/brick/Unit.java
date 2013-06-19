@@ -10,37 +10,48 @@ public class Unit {
 
 	protected DifferentialPilot pilot;
 	private Communicator com;
+//	public int travelSpeed = 0;
 	
 	Command nextCommand;
 	Command currentcommand;
+	
+	double travelSpeed = 0, steerRatio;
+	RegulatedMotor left, right, inside, outside;
+	int motorSpeed;
 
-	public Unit(DifferentialPilot pilot) {
-		this.pilot = pilot;
+	public Unit() {
+		left = PilotProps.getMotor("A");
+		right = PilotProps.getMotor("B");
+		motorSpeed = (int) (0.8f * left.getMaxSpeed());
+		left.setSpeed(motorSpeed);
+		right.setSpeed(motorSpeed);
+//		this.pilot = new DifferentialPilot(43.3, 10.15, left, right, false);
 		com = new Communicator(this);
+		System.out.println("LEFT: " + left.getMaxSpeed());
+		System.out.println("RIGHT: " + right.getMaxSpeed());
 	}
 
 	public static void main(String[] args) throws IOException, InterruptedException {
 		PilotProps pp = new PilotProps();
-		pp.loadPersistentValues();
-		if(!Boolean.parseBoolean(pp.getProperty("CDIO_DEF"))) {
-			System.out.println("prop not set");
-			pp.setProperty(PilotProps.KEY_WHEELDIAMETER, "56");
-			pp.setProperty( PilotProps.KEY_TRACKWIDTH, "120");
-			pp.setProperty( PilotProps.KEY_LEFTMOTOR, "B");
-			pp.setProperty( PilotProps.KEY_RIGHTMOTOR, "C");
-			pp.setProperty( PilotProps.KEY_REVERSE, "false");
-			pp.setProperty("CDIO_DEF", "true");
-			pp.storePersistentValues();
-		}
-		float wheelDiameter = Float.parseFloat(pp.getProperty( PilotProps.KEY_WHEELDIAMETER, "56"));
-		float trackWidth = Float.parseFloat(pp.getProperty( PilotProps.KEY_TRACKWIDTH, "120"));
-		RegulatedMotor leftMotor = PilotProps.getMotor(pp.getProperty( PilotProps.KEY_LEFTMOTOR, "B"));
-		RegulatedMotor rightMotor = PilotProps.getMotor(pp.getProperty( PilotProps.KEY_RIGHTMOTOR, "C"));
-		boolean reverse = Boolean.parseBoolean(pp.getProperty( PilotProps.KEY_REVERSE, "false"));
+//		pp.loadPersistentValues();
+//		if(!Boolean.parseBoolean(pp.getProperty("CDIO_DEF"))) {
+//			System.out.println("prop not set");
+//			pp.setProperty(PilotProps.KEY_WHEELDIAMETER, "56");
+//			pp.setProperty( PilotProps.KEY_TRACKWIDTH, "120");
+//			pp.setProperty( PilotProps.KEY_LEFTMOTOR, "B");
+//			pp.setProperty( PilotProps.KEY_RIGHTMOTOR, "C");
+//			pp.setProperty( PilotProps.KEY_REVERSE, "false");
+//			pp.setProperty("CDIO_DEF", "true");
+//			pp.storePersistentValues();
+//		}
+//		float wheelDiameter = Float.parseFloat(pp.getProperty( PilotProps.KEY_WHEELDIAMETER, "56"));
+//		float trackWidth = Float.parseFloat(pp.getProperty( PilotProps.KEY_TRACKWIDTH, "120"));
+//		RegulatedMotor leftMotor = PilotProps.getMotor(pp.getProperty( PilotProps.KEY_LEFTMOTOR, "B"));
+//		RegulatedMotor rightMotor = PilotProps.getMotor(pp.getProperty( PilotProps.KEY_RIGHTMOTOR, "C"));
+//		boolean reverse = Boolean.parseBoolean(pp.getProperty( PilotProps.KEY_REVERSE, "false"));
 
-		DifferentialPilot pilot = new DifferentialPilot(wheelDiameter, trackWidth, leftMotor, rightMotor, reverse);
 
-		Unit unit = new Unit(pilot);
+		Unit unit = new Unit();
 		unit.go();
 	}
 	
@@ -50,34 +61,55 @@ public class Unit {
 	
 	public void execute(Command command) {
 		switch(command.getNavCommand()) {
-		case TRAVEL:
-			pilot.travel(command.getA1(), false);
+		case STEER:
+			doSteer(command.getA1());
 			break;
-		case TRAVEL_ARC:
-			pilot.travelArc(command.getA1(), command.getA2());
+		case FORWARD:
+			left.forward();
+			right.forward();
 			break;
-		case ARC:
-			pilot.arc(command.getA1(), command.getA2());
-			break;
-		case ROTATE:
-			pilot.rotate(command.getA1());
+		case STOP:
+			left.stop(true);
+			right.stop(true);
 			break;
 		case SET_TRAVELSPEED:
-			pilot.setTravelSpeed(command.getA1());
-			break;
-		case SET_ROTATESPEED:
-			pilot.setRotateSpeed(command.getA1());			
-			break;
-		case SET_ACCELERATION:
-			pilot.setAcceleration((int) command.getA1());
-			break;
-		case STEER:
-			pilot.steer(command.getA1());
+			motorSpeed = (int) command.getA1();
+			left.setAcceleration(3 * motorSpeed);
+			right.setAcceleration(3 * motorSpeed);
+			left.setSpeed(motorSpeed);
+			right.setSpeed(motorSpeed);
 			break;
 		default:
 			System.out.println("Unknown command");
 			break;
 		}
+	}
+	
+	public void doSteer(float turnRate) {
+		float rate = turnRate;
+		float steerRatio;
+		if(rate > 200) rate = 200;
+		if(rate < -200) rate = -200;
+		if(rate == 0) {
+			left.forward();
+			right.forward();
+			return;
+		}
+		
+		if(rate > 0) {
+			inside = left;
+			outside = right;
+		} else {
+			inside = right;
+			outside = left;
+			rate = -rate;
+		}
+		steerRatio = (float)(1 - rate/100.0);
+		outside.setSpeed(motorSpeed);
+		inside.setSpeed((int) (motorSpeed * steerRatio));
+		outside.forward();
+		if (steerRatio > 0) inside.forward();
+		else inside.backward();
 	}
 
 }

@@ -25,14 +25,14 @@ public class Communicator {
 
 	public void connect() {
 		Sound.playTone(1600, 300);
-		LCD.clear();
-		System.out.println("Speed: " + theUnit.pilot.getTravelSpeed() + " (" + theUnit.pilot.getMaxTravelSpeed() +")");
-		System.out.println("ROTA: " + theUnit.pilot.getRotateSpeed() + " (" + theUnit.pilot.getMaxRotateSpeed() +")");
+//		LCD.clear();
+//		System.out.println("Speed: " + theUnit.pilot.getTravelSpeed() + " (" + theUnit.pilot.getMaxTravelSpeed() +")");
+//		System.out.println("ROTA: " + theUnit.pilot.getRotateSpeed() + " (" + theUnit.pilot.getMaxRotateSpeed() +")");
 //		LCD.drawString("waiting", 0, 5);
 		BTConnection btc = Bluetooth.waitForConnection(); // this method is very
 															// patient.
-		LCD.clear();
-		LCD.drawString("connected", 0, 0);
+//		LCD.clear();
+//		LCD.drawString("connected", 0, 0);
 		try {
 			dataIn = btc.openDataInputStream();
 			dataOut = btc.openDataOutputStream();
@@ -70,22 +70,12 @@ public class Communicator {
 						System.out.println("Read failure");
 						if(++readFailures > 3) {
 							isRunning = false;
-							theUnit.pilot.stop();
 							break;
 						}
 						continue;
 					}
 					
 					switch (command.getNavCommand()) {
-					case STEER:
-						theUnit.pilot.steer(command.getA1());
-						break;
-					case LATENCY_TEST:
-						sendConfirm(command);
-						break;
-					case STOP:
-						theUnit.pilot.stop();
-						break;
 					default:
 						theUnit.execute(command);
 						break;
