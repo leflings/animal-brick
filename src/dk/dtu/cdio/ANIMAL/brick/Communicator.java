@@ -3,7 +3,6 @@ package dk.dtu.cdio.ANIMAL.brick;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.io.Writer;
 
 import lejos.nxt.LCD;
 import lejos.nxt.Sound;
@@ -71,28 +70,24 @@ public class Communicator {
 						System.out.println("Read failure");
 						if(++readFailures > 3) {
 							isRunning = false;
+							theUnit.pilot.stop();
 							break;
 						}
 						continue;
 					}
 					
 					switch (command.getNavCommand()) {
+					case STEER:
+						theUnit.pilot.steer(command.getA1());
+						break;
 					case LATENCY_TEST:
 						sendConfirm(command);
 						break;
 					case STOP:
 						theUnit.pilot.stop();
-						sendConfirm(command);
-						break;
-					case STOP_AND_CLEAR:
-						theUnit.pilot.stop();
-					case CLEAR:
-						theUnit.queue.clear();
 						break;
 					default:
 						theUnit.execute(command);
-						sendConfirm(command);
-//						theUnit.nextCommand = command;
 						break;
 					}
 				Thread.yield();

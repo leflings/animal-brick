@@ -1,20 +1,13 @@
 package dk.dtu.cdio.ANIMAL.brick;
 
 import java.io.IOException;
-import java.util.EmptyQueueException;
-import java.util.Queue;
 
-import dk.dtu.cdio.ANIMAL.brick.Communicator.Reader;
-
-import lejos.nxt.Button;
-import lejos.nxt.Motor;
 import lejos.robotics.RegulatedMotor;
 import lejos.robotics.navigation.DifferentialPilot;
 import lejos.util.PilotProps;
 
 public class Unit {
 
-	protected Queue<Command> queue;
 	protected DifferentialPilot pilot;
 	private Communicator com;
 	
@@ -23,12 +16,10 @@ public class Unit {
 
 	public Unit(DifferentialPilot pilot) {
 		this.pilot = pilot;
-		queue = new Queue<Command>();
 		com = new Communicator(this);
 	}
 
-	public static void main(String[] args) throws IOException,
-			InterruptedException {
+	public static void main(String[] args) throws IOException, InterruptedException {
 		PilotProps pp = new PilotProps();
 		pp.loadPersistentValues();
 		if(!Boolean.parseBoolean(pp.getProperty("CDIO_DEF"))) {
@@ -47,34 +38,14 @@ public class Unit {
 		RegulatedMotor rightMotor = PilotProps.getMotor(pp.getProperty( PilotProps.KEY_RIGHTMOTOR, "C"));
 		boolean reverse = Boolean.parseBoolean(pp.getProperty( PilotProps.KEY_REVERSE, "false"));
 
-		DifferentialPilot pilot = new DifferentialPilot(wheelDiameter,
-				trackWidth, leftMotor, rightMotor, reverse);
+		DifferentialPilot pilot = new DifferentialPilot(wheelDiameter, trackWidth, leftMotor, rightMotor, reverse);
 
 		Unit unit = new Unit(pilot);
 		unit.go();
 	}
 	
 	public void go() {
-		
 		com.connect();
-		boolean more = true;
-//		while (more) {
-//			while(nextCommand == null);
-//			currentcommand = nextCommand;
-//			execute(currentcommand);
-//			com.sendConfirm(currentcommand);
-//			more = !Button.ESCAPE.isDown();
-//			if(!com.reader.isRunning) {
-//				com.connect();
-//			}
-//			
-//			try {
-//				Thread.sleep(3000);
-//			} catch (InterruptedException e) {
-//				// TODO Auto-generated catch block
-//				e.printStackTrace();
-//			}
-//		}
 	}
 	
 	public void execute(Command command) {
@@ -99,6 +70,9 @@ public class Unit {
 			break;
 		case SET_ACCELERATION:
 			pilot.setAcceleration((int) command.getA1());
+			break;
+		case STEER:
+			pilot.steer(command.getA1());
 			break;
 		default:
 			System.out.println("Unknown command");
